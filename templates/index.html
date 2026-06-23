@@ -3,34 +3,191 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Expense Tracker</title>
+    <title>Flask Expense Tracker</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <h1>Expense Tracker</h1>
+    <div class="page-shell">
+        {% if get_flashed_messages() %}
+            <div class="messages-container">
+                {% for category, message in get_flashed_messages(with_categories=true) %}
+                    <div class="alert alert-{{ category }}" role="alert">
+                        <span class="alert-content">{{ message }}</span>
+                        <button class="alert-close" onclick="this.parentElement.style.display='none';">×</button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
 
-    <form method="POST">
+        <header class="page-header">
+            <div>
+                <h1>Expense Tracker</h1>
+                <p>Track income, expenses, budgets, and monthly reports in one place.</p>
+            </div>
+            <div class="header-summary">
+                <div class="summary-card">
+                    <span>Selected Month</span>
+                    <strong>{{ selected_month }}</strong>
+                </div>
+                <form action="{{ url_for('home') }}" method="get" class="month-selector">
+                    <label for="month">Choose Month</label>
+                    <select name="month" id="month" onchange="this.form.submit()">
+                        {% for month in months %}
+                            <option value="{{ month }}" {% if month == selected_month %}selected{% endif %}>{{ month }}</option>
+                        {% endfor %}
+                    </select>
+                </form>
+            </div>
+        </header>
 
-        <input type="text" name="title" placeholder="Expense Title" required>
+        <main>
+            <section class="grid-two">
+                <article class="panel">
+                    <h2>Add Income / Expense</h2>
+                    <form method="POST" class="transaction-form">
+                        <input type="hidden" name="action" value="transaction">
+                        <label>
+                            Description
+                            <input type="text" name="description" placeholder="Salary, Rent, Groceries" required>
+                        </label>
+                        <label>
+                            Amount
+                            <input type="number" name="amount" min="0.01" step="0.01" placeholder="0.00" required>
+                        </label>
+                        <label>
+                            Type
+                            <select name="transaction_type">
+                                <option value="Income">Income</option>
+                                <option value="Expense" selected>Expense</option>
+                            </select>
+                        </label>
+                        <label>
+                            Category
+                            <select name="category_id">
+                                <option value="" selected>Uncategorized</option>
+                                {% for category in categories %}
+                                    <option value="{{ category.id }}">{{ category.type }} - {{ category.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </label>
+                        <label>
+                            Date
+                            <input type="date" name="date" value="{{ selected_month }}-01">
+                        </label>
+                        <button type="submit" class="primary-button">Save Transaction</button>
+                    </form>
+                </article>
 
-        <input type="number" name="amount" placeholder="Amount" required>
+                <article class="panel budget-panel">
+                    <h2>Budget Limit</h2>
+                    <p>Set a spending limit for the selected month and compare expenses against it.</p>
+                    <div class="budget-box">
+                        <span>Budget Limit</span>
+                        <strong>Rs. {{ summary.budget_limit | round(2) }}</strong>
+                    </div>
+                    <div class="budget-box">
+                        <span>Remaining</span>
+                        <strong>Rs. {{ summary.remaining_budget | round(2) }}</strong>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: {{ summary.budget_progress }}%"></div>
+                    </div>
+                    <form method="POST" class="budget-form">
+                        <input type="hidden" name="action" value="budget">
+                        <label>
+                            Month
+                            <input type="month" name="budget_month" value="{{ selected_month }}">
+                        </label>
+                        <label>
+                            Limit Amount
+                            <input type="number" name="limit_amount" min="0" step="0.01" placeholder="0.00" value="{{ summary.budget_limit | round(2) }}" required>
+                        </label>
+                        <button type="submit" class="primary-button">Update Budget</button>
+                    </form>
+                </article>
+            </section>
 
-        <button type="submit">Add Expense</button>
+            <section class="grid-three">
+                <article class="status-card income-card">
+                    <span>Total Income</span>
+                    <strong>Rs. {{ summary.income | round(2) }}</strong>
+                </article>
+                <article class="status-card expense-card">
+                    <span>Total Expenses</span>
+                    <strong>Rs. {{ summary.expense | round(2) }}</strong>
+                </article>
+                <article class="status-card net-card">
+                    <span>Net Savings</span>
+                    <strong>Rs. {{ summary.net | round(2) }}</strong>
+                </article>
+            </section>
 
-    </form>
-
-    <hr>
-
-    <h2>Expenses</h2>
-
-    <ul>
-        {% for expense in expenses %}
-
-            <li>
-                {{ expense.title }} - Rs. {{ expense.amount }}
-            </li>
-
-        {% endfor %}
-    </ul>
-
+            <section class="panel">
+                <h2>Monthly Report</h2>
+                <div class="report-grid">
+                    <div>
+                        <h3>Category Breakdown</h3>
+                        <table class="report-table">
+                            <thead>
+                                <tr>
+                                    <th>Category</th>
+                                    <th>Type</th>
+                                    <th>Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% if summary.category_breakdown %}
+                                    {% for row in summary.category_breakdown %}
+                                        <tr>
+                                            <td>{{ row.category }}</td>
+                                            <td>{{ row.type }}</td>
+                                            <td>Rs. {{ row.total | round(2) }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                {% else %}
+                                    <tr><td colspan="3">No category activity for this month.</td></tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div>
+                        <h3>Transactions</h3>
+                        <table class="transactions-table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Description</th>
+                                    <th>Category</th>
+                                    <th>Type</th>
+                                    <th>Amount</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% if transactions %}
+                                    {% for transaction in transactions %}
+                                        <tr>
+                                            <td>{{ transaction.date }}</td>
+                                            <td>{{ transaction.description }}</td>
+                                            <td>{{ transaction.category or 'Uncategorized' }}</td>
+                                            <td>{{ transaction.type }}</td>
+                                            <td class="amount {{ transaction.type | lower }}">Rs. {{ transaction.amount | round(2) }}</td>
+                                            <td>
+                                                <form action="{{ url_for('delete', transaction_id=transaction.id) }}" method="post" class="delete-form">
+                                                    <button type="submit" class="delete-button">Delete</button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                {% else %}
+                                    <tr><td colspan="6">No transactions recorded for this month yet.</td></tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
 </body>
 </html>

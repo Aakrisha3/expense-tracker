@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Error - Expense Tracker</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="page-shell">
+        <div class="error-container">
+            <h1>Oops! Something went wrong</h1>
+            <p class="error-message">{{ error or 'An unexpected error occurred.' }}</p>
+            <a href="{{ url_for('home') }}" class="error-link">← Back to Dashboard</a>
+        </div>
+    </div>
+</body>
+</html>
