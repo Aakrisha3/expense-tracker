@@ -24,3 +24,16 @@
 2026-06-23 21:53:10,767 - __main__ - INFO - Database initialized successfully
 2026-06-23 21:53:10,781 - werkzeug - INFO - 127.0.0.1 - - [23/Jun/2026 21:53:10] "GET /?month=2026-06 HTTP/1.1" 200 -
 2026-06-23 21:53:11,016 - werkzeug - INFO - 127.0.0.1 - - [23/Jun/2026 21:53:11] "[36mGET /static/style.css HTTP/1.1[0m" 304 -
+2026-06-24 14:01:47,228 - __main__ - INFO - Database initialized successfully
+2026-06-24 14:01:47,233 - __main__ - INFO - Starting Expense Tracker application
+2026-06-24 14:01:47,376 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://localhost:8080
+2026-06-24 14:01:47,379 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2026-06-24 14:01:59,995 - __main__ - INFO - Database initialized successfully
+2026-06-24 14:02:00,183 - werkzeug - INFO - 127.0.0.1 - - [24/Jun/2026 14:02:00] "GET / HTTP/1.1" 200 -
+2026-06-24 14:02:00,615 - werkzeug - INFO - 127.0.0.1 - - [24/Jun/2026 14:02:00] "[36mGET /static/style.css HTTP/1.1[0m" 304 -
+2026-06-24 14:02:47,633 - __main__ - INFO - Database initialized successfully
+2026-06-24 14:02:47,820 - werkzeug - INFO - 127.0.0.1 - - [24/Jun/2026 14:02:47] "GET / HTTP/1.1" 200 -
+2026-06-24 14:02:48,229 - werkzeug - INFO - 127.0.0.1 - - [24/Jun/2026 14:02:48] "[36mGET /static/style.css HTTP/1.1[0m" 304 -
+2026-06-24 14:02:49,247 - __main__ - WARNING - 404 error: /favicon.ico
+2026-06-24 14:02:49,288 - werkzeug - INFO - 127.0.0.1 - - [24/Jun/2026 14:02:49] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
